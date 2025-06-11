@@ -1,3 +1,5 @@
+from snowflake.snowpark.functions import col
+
 def normalize_columns(cols):
     return [col.strip().lower() for col in cols]
 
@@ -9,7 +11,7 @@ def compare_schema(actual_cols, expected_cols):
     return {
         "matching": list(actual & expected),
         "missing": list(expected - actual),
-        "extra": list(actual - expected)
+        "extra": list(actual - expected),
     }
 
 
@@ -18,12 +20,14 @@ def apply_column_mapping(df, column_mapping):
 
 
 def fetch_column_mapping(session, vendor_id, table_name):
-    sql = f"""
-        SELECT expected_column, actual_column
-        FROM column_mappings
-        WHERE vendor_id = %s AND table_name = %s
-    """
-    cur = session.cursor()
-    cur.execute(sql, (vendor_id, table_name))
-    return {row[1]: row[0] for row in cur.fetchall()}  # Reverse mapping for .rename()
-    
+    df = (
+        session.table("column_mappings")
+        .filter(
+            (col("vendor_id") == vendor_id) & (col("table_name") == table_name)
+        )
+        .select("expected_column", "actual_column")
+    )
+
+    rows = df.collect()
+    print(rows)
+    return {row["ACTUAL_COLUMN"]: row["EXPECTED_COLUMN"] for row in rows}
