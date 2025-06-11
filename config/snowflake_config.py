@@ -11,3 +11,4 @@ connection_parameters = {
     "database": os.getenv("SNOWFLAKE_DATABASE"),
     "schema": os.getenv("SNOWFLAKE_SCHEMA")
 }
+
