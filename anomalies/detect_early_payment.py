@@ -19,7 +19,7 @@ def detect_early_payment(conn, invoice_stream):
         payment_query = f"""
             SELECT
                 invoice_id,
-                total_amount,
+                amount,
                 invoice_date,
                 due_date,
                 COALESCE(discount_terms, '2/10 Net 30') AS discount_terms
@@ -30,7 +30,7 @@ def detect_early_payment(conn, invoice_stream):
             AND due_date >= '{current_date}'
         """
         cursor.execute(payment_query)
-        invoices = pd.DataFrame(cursor.fetchall(), columns=["invoice_id", "total_amount", "invoice_date", "due_date", "discount_terms"])
+        invoices = pd.DataFrame(cursor.fetchall(), columns=["invoice_id", "amount", "invoice_date", "due_date", "discount_terms"])
 
         if invoices.empty:
             logger.info("No eligible invoices found")
@@ -41,7 +41,7 @@ def detect_early_payment(conn, invoice_stream):
         for _, row in invoices.iterrows():
             invoice_date = row["invoice_date"]
             due_date = row["due_date"]
-            total_amount = float(row["total_amount"])
+            total_amount = float(row["amount"])
             discount_terms = row["discount_terms"]
 
             try:
