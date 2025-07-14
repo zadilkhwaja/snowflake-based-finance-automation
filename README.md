@@ -29,5 +29,5 @@ AIVA is a Snowflake-native finance automation platform that detects inconsistenc
        → Dashboards / Query Assist via Cortex
 ```
 
-
+## 📽️ Demo
 
